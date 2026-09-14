@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AgroGuard IA</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f8f4;
+            color: #1f2937;
+        }
+
+        header {
+            background: #166534;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        .contenedor {
+            width: 90%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+        .tarjeta {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .hero {
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 32px;
+            color: #166534;
+        }
+
+        .hero p {
+            font-size: 18px;
+        }
+
+        input {
+            width: 200px;
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #166534;
+            border-radius: 8px;
+            margin: 10px;
+        }
+
+        button {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 13px 25px;
+            border-radius: 8px;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #15803d;
+        }
+
+        .resultado {
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .riesgo {
+            font-size: 45px;
+            font-weight: bold;
+            color: #ea580c;
+        }
+.barra-riesgo {
+    width: 100%;
+    height: 25px;
+    background: #e5e7eb;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.progreso-riesgo {
+    height: 100%;
+    width: {{ riesgo }}%;
+    border-radius: 20px;
+    transition: width 1s ease, background 0.5s ease;
+
+    {% if riesgo <= 30 %}
+        background: #22c55e;
+    {% elif riesgo <= 60 %}
+        background: #eab308;
+    {% elif riesgo <= 80 %}
+        background: #f97316;
+    {% else %}
+        background: #ef4444;
+    {% endif %}
+}
+
+.leyenda-riesgo {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 14px;
+}
+        .datos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .dato {
+            background: #f0fdf4;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .dato h3 {
+            color: #166534;
+        }
+
+        footer {
+            background: #166534;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🌱 AgroGuard IA</h1>
+    <p>Protegemos tu cosecha antes de que llegue el riesgo.</p>
+</header>
+
+
+<div class="contenedor">
+
+    <!-- PRESENTACIÓN -->
+    <div class="tarjeta hero">
+
+        <h2>🤖 Sistema inteligente para agricultores</h2>
+
+        <p>
+            AgroGuard IA analiza las condiciones de una parcela
+            para detectar posibles riesgos agrícolas.
+        </p>
+
+        <p>
+            Ingresa los datos actuales de tu parcela:
+        </p>
+
+
+        <!-- FORMULARIO -->
+        <form action="/analizar" method="POST">
+<label>🏷️ Nombre de la parcela</label><br>
+
+<input
+    type="text"
+    name="nombre_parcela"
+    placeholder="Ejemplo: Parcela El Sol"
+    required
+>
+<br><br>
+
+<label>🌱 Tipo de cultivo</label><br>
+
+<input
+    type="text"
+    name="cultivo"
+    placeholder="Ejemplo: arroz"
+    required
+>
+
+<br><br>
+<br><br>
+    <label>💧 Humedad del suelo (%)</label><br>
+
+    <input
+        type="number"
+        name="humedad"
+        min="0"
+        max="100"
+        placeholder="Ejemplo: 70"
+        required
+    >
+
+    <br><br>
+
+    <label>🌡️ Temperatura (°C)</label><br>
+
+    <input
+        type="number"
+        name="temperatura"
+        min="-10"
+        max="60"
+        placeholder="Ejemplo: 30"
+        required
+    >
+
+    <br><br>
+
+    <label>🌧️ Probabilidad de lluvia (%)</label><br>
+
+    <input
+        type="number"
+        name="lluvia"
+        min="0"
+        max="100"
+        placeholder="Ejemplo: 60"
+        required
+    >
+
+    <br><br>
+
+    <button type="submit">
+        🔍 ANALIZAR PARCELA
+    </button>
+
+</form>
+    </div>
+
+
+    <!-- RESULTADO -->
+    <div class="tarjeta resultado">
+
+        <h2>📊 Resultado del análisis</h2>
+{% if nombre_parcela %}
+    <p>
+        🌱 Parcela analizada:
+        <strong>{{ nombre_parcela }}</strong>
+    </p>
+{% endif %}
+        <p>
+            Humedad del suelo:
+            <strong>{{ humedad }}%</strong>
+        </p>
+
+        <p>Índice de riesgo agrícola:</p>
+
+        <div class="riesgo">
+            {{ riesgo }}/100
+        </div>
+<div class="barra-riesgo">
+    <div class="progreso-riesgo"></div>
+</div>
+
+<div class="leyenda-riesgo">
+    <span>🟢 Bajo</span>
+    <span>🟡 Precaución</span>
+    <span>🟠 Alto</span>
+    <span>🔴 Emergencia</span>
+</div>
+        <h2>
+            {{ color }} {{ nivel }}
+        </h2>
+
+        <p>
+            {{ recomendacion }}
+        </p>
+
+    </div>
+<section class="tarjeta">
+
+    <h2>🌱 Registrar parcela</h2>
+
+    <p>Ingresa los datos de tu parcela para personalizar el análisis.</p>
+
+    <form action="/registrar" method="POST">
+<label>🏷️ Nombre de la parcela</label>
+<input
+    type="text"
+    name="nombre_parcela"
+    placeholder="Ejemplo: Parcela El Sol"
+    required
+>
+        <label>📍 Ubicación</label>
+        <input 
+            type="text" 
+            name="ubicacion" 
+            placeholder="Ejemplo: Trujillo, La Libertad"
+            required
+        >
+
+        <label>🌱 Tipo de cultivo</label>
+        <input 
+            type="text" 
+            name="cultivo" 
+            placeholder="Ejemplo: arroz"
+            required
+        >
+
+        <label>📐 Área de la parcela (hectáreas)</label>
+        <input 
+            type="number" 
+            name="area" 
+            step="0.1"
+            placeholder="Ejemplo: 2.5"
+            required
+        >
+
+        <label>📅 Fecha de siembra</label>
+        <input 
+            type="date" 
+            name="fecha_siembra"
+            required
+        >
+
+        <label>💧 Tipo de riego</label>
+        <select name="riego" required>
+            <option value="">Seleccionar</option>
+            <option value="Goteo">Riego por goteo</option>
+            <option value="Aspersión">Riego por aspersión</option>
+            <option value="Gravedad">Riego por gravedad</option>
+        </select>
+
+        <button type="submit">
+            🌱 REGISTRAR PARCELA
+        </button>
+
+    </form>
+
+</section>
+{% if parcela_registrada %}
+
+<div class="tarjeta">
+
+    <h2>🌱 Mi parcela registrada</h2>
+
+    <div class="datos">
+
+        <div class="dato">
+            <h3>🏷️ Nombre</h3>
+            <p>{{ nombre_parcela }}</p>
+        </div>
+
+        <div class="dato">
+            <h3>📍 Ubicación</h3>
+            <p>{{ ubicacion }}</p>
+        </div>
+
+        <div class="dato">
+            <h3>🌱 Cultivo</h3>
+            <p>{{ cultivo }}</p>
+        </div>
+
+        <div class="dato">
+            <h3>📐 Área</h3>
+            <p>{{ area }} hectáreas</p>
+        </div>
+
+        <div class="dato">
+            <h3>📅 Siembra</h3>
+            <p>{{ fecha_siembra }}</p>
+        </div>
+
+        <div class="dato">
+            <h3>💧 Riego</h3>
+            <p>{{ riego }}</p>
+        </div>
+
+    </div>
+
+    <p style="text-align:center; margin-top:20px;">
+        ✅ <strong>Parcela registrada correctamente</strong>
+    </p>
+
+</div>
+
+{% endif %}
+    <!-- DATOS -->
+    <div class="tarjeta">
+
+        <h2>🌦️ Información de la parcela</h2>
+
+        <div class="datos">
+
+            <div class="dato">
+                <h3>💧 Humedad</h3>
+                <p>{{ humedad }}%</p>
+            </div>
+
+            <div class="dato">
+                <h3>🌡️ Temperatura</h3>
+              <p>{{ temperatura }}°C</p>
+            </div>
+
+           <div class="dato">
+    <h3>🌧️ Lluvia</h3>
+    <p>{{ lluvia }}%</p>
+</div>
+        </div>
+
+    </div>
+
+
+    <!-- EXPLICACIÓN -->
+    <div class="tarjeta">
+
+        <h2>🧠 ¿Cómo funciona AgroGuard IA?</h2>
+
+        <ol>
+            <li>El agricultor registra su parcela.</li>
+            <li>Los sensores obtienen información del suelo.</li>
+            <li>Python analiza los datos.</li>
+            <li>El sistema calcula el nivel de riesgo.</li>
+            <li>AgroGuard IA genera una recomendación preventiva.</li>
+        </ol>
+
+    </div>
+
+</div>
+
+
+<footer>
+    <p>🌱 AgroGuard IA | Proyecto de Ingeniería de Sistemas</p>
+</footer>
+
+</body>
+</html>
